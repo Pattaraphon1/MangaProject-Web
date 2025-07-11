@@ -1,8 +1,11 @@
 import React from 'react'
+import PopularAnime from '../components/PopularAnime'
 
 function AnimePage() {
   return (
-    <div>Anime</div>
+    <div>
+      <PopularAnime/>
+    </div>
   )
 }
 

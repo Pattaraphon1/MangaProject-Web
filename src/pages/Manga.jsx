@@ -1,8 +1,9 @@
 import React from 'react'
+import PopularManga from '../components/PopularManga'
 
 function MangaPage() {
   return (
-    <div>Manga</div>
+    <div><PopularManga /></div>
   )
 }
 

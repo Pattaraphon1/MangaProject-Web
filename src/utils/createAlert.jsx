@@ -7,3 +7,11 @@ export const createAlert = (icon,text)=>{
     timer:2000,
   });
 };
+
+export const emailAlert = (icon,text)=>{
+  return Swal.fire({
+    title: text || "Email already exist",
+    icon: icon || "error",
+    timer:2000,
+  });
+};

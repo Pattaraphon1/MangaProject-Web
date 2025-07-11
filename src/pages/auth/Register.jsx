@@ -2,13 +2,15 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { registerSchema } from "../../utils/validator";
 import { actionRegister } from "../../api/auth.api";
-import { createAlert } from "../../utils/createAlert";
+import { createAlert, emailAlert } from "../../utils/createAlert";
 import HomeIcon from "../../icons";
+import { useNavigate } from "react-router";
 
 
 function Register() {
 
-  const { handleSubmit, register, formState, reset } = useForm({
+  const navigate = useNavigate();
+  const { handleSubmit, register, formState} = useForm({
     resolver: yupResolver(registerSchema)
   })
   const { isSubmitting, errors } = formState;
@@ -20,12 +22,14 @@ function Register() {
       const res = await actionRegister(value);
       console.log(res);
       createAlert("success", res.data.message);
-      reset()
+      navigate('/login')
     } catch (error) {
       console.log(error)
-      createAlert("info", error.response?.data?.message)
+      emailAlert("error", error.response?.data?.message)
     }
   }
+
+
 
   return (
     <div className='flex w-full justify-center bg-[#e8caa0] min-h-screen'>
