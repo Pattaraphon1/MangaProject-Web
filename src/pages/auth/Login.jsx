@@ -7,9 +7,10 @@ import { loginSchema } from '../../utils/validator';
 import { createAlert } from '../../utils/createAlert';
 
 
+
 function Login() {
 const navigate = useNavigate();
-  const actionLoginWithZustand = useAuthStore((state) => state.actionLoginWithZustand);
+  const actionLogin = useAuthStore((state) => state.actionLogin);
 
   const { handleSubmit, register, formState } = useForm({
     resolver: yupResolver(loginSchema),
@@ -17,17 +18,17 @@ const navigate = useNavigate();
   const { isSubmitting, errors } = formState;
 
   const hdlSubmit = async (value) => {
-    const res = await actionLoginWithZustand(value);
+    const res = await actionLogin(value);
     if (res.success) {
-      createAlert("success", "Welcome to MangaList");
-      if (res.role === "USER") {
-        navigate("/users");
+      createAlert("success", `Welcome to MangaList`)
+      if (res.role === "ADMIN") {
+        navigate("/admin-anime"); 
       } else {
-        navigate("/");
+        navigate("/users");
       }
     } else {
       createAlert("info", res.message);
-    }
+  }
   };
 
   return (

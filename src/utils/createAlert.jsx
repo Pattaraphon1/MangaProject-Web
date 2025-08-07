@@ -15,3 +15,4 @@ export const emailAlert = (icon,text)=>{
     timer:2000,
   });
 };
+

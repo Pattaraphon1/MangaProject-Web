@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import FavoriteButton from "../components/Profile/FavoriteButton";
+import AddToMyListButton from "../components/Profile/AddtomyListButton";
 
 function AnimeItem() {
   const { id } = useParams();
@@ -11,6 +13,26 @@ function AnimeItem() {
   const [animeRelations, setAnimeRelations] = useState([]);
   const [mangaRelations, setMangaRelations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [prismaAnimeId, setPrismaAnimeId] = useState(null);
+
+  useEffect(() => {
+    const fetchPrismaAnime = async () => {
+      try {
+        const res = await fetch(`http://localhost:8899/api/anime/find-by-mal/${id}`);
+        if (!res.ok) {
+          console.warn("Anime not found in Prisma DB");
+          return;
+        }
+        const data = await res.json();
+        setPrismaAnimeId(data.id); 
+      } catch (error) {
+        console.error("Error fetching Prisma anime:", error);
+      }
+    };
+
+    fetchPrismaAnime();
+  }, [id]);
 
   useEffect(() => {
     const fetchAnime = async () => {
@@ -116,6 +138,9 @@ function AnimeItem() {
             alt={title}
             className="rounded-xl shadow-lg w-full"
           />
+          <AddToMyListButton itemId={prismaAnimeId} type="anime" />
+          <FavoriteButton itemId={prismaAnimeId} type="anime" />
+
           <div className="mt-6 space-y-2 text-sm">
             <p><strong>Format:</strong> TV</p>
             <p><strong>Episodes:</strong> {anime.episodes || "N/A"}</p>

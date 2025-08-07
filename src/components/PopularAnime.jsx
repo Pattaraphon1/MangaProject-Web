@@ -12,7 +12,6 @@ function PopularAnime() {
     currentPage,
     totalPages,
     isSearching,
-    searchQuery,
   } = useAnimeStore();
 
   const [input, setInput] = useState("");

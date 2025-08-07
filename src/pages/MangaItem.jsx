@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import FavoriteButton from "../components/Profile/FavoriteButton";
+import AddToMyListButton from "../components/Profile/AddtomyListButton";
 
 function MangaItem() {
   const { id } = useParams();
@@ -10,6 +12,26 @@ function MangaItem() {
   const [characterPics, setCharacterPics] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverPics, setCoverPics] = useState([]);
+
+  const [prismaMangaId, setPrismaMangaId] = useState(null);
+  
+    useEffect(() => {
+      const fetchPrismaManga = async () => {
+        try {
+          const res = await fetch(`http://localhost:8899/api/manga/find-by-mal/${id}`);
+          if (!res.ok) {
+            console.warn("Manga not found in Prisma DB");
+            return;
+          }
+          const data = await res.json();
+          setPrismaMangaId(data.id); 
+        } catch (error) {
+          console.error("Error fetching Prisma manga:", error);
+        }
+      };
+  
+      fetchPrismaManga();
+    }, [id]);
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -91,6 +113,9 @@ function MangaItem() {
             alt={title}
             className="rounded-xl shadow-lg w-full"
           />
+          <AddToMyListButton itemId={prismaMangaId} type="manga" />
+          <FavoriteButton itemId={prismaMangaId} type="manga" />
+
           <div className="mt-6 space-y-2 text-sm">
             <p><strong>Type:</strong> {type}</p>
             <p><strong>Status:</strong> {status}</p>

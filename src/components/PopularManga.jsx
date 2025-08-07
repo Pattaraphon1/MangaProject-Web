@@ -12,7 +12,6 @@ function PopularManga() {
     currentPage,
     totalPages,
     isSearching,
-    searchQuery,
   } = useMangaStore();
 
   const [input, setInput] = useState("");

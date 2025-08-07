@@ -1,75 +1,69 @@
 // src/store/authStore.js
 import { create } from "zustand";
 import axios from "axios";
+import { persist } from "zustand/middleware";
 
-const useAuthStore = create((set) => {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+const useAuthStore = create(
+  persist(
+    (set,get) => ({
+      isLoggedIn: false,
+      setToken: (token) => set({ token, isLoggedIn: !!token }),
+      user: null,
+      setUser: (user) => set({ user }),
+      token: null,
+      isAdmin: false,
 
-  return {
-    isLoggedIn: !!token,
-    user: user || null,
-    token: token || null,
+      actionLogin: async (credential) => {
+        try {
+          const res = await axios.post("http://localhost:8899/api/auth/login", credential);
+          const { token, payload } = res.data;
 
-    actionLoginWithZustand: async (credentials) => {
-      try {
-        const res = await axios.post("http://localhost:8899/api/auth/login", credentials);
-        const { token, payload } = res.data;
+          set({
+            isLoggedIn: true,
+            user: payload,
+            token,
+            isAdmin: payload.role === "ADMIN"
+          });
 
-        // Save to localStorage
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(payload));
+          return { success: true, role: payload.role };
+        } catch (error) {
+          return {
+            success: false,
+            message: error.response?.data?.message || "Login failed",
+          };
+        }
+      },
 
-        set({ isLoggedIn: true, user: payload, token });
+      fetchCurrentUser: async () => {
+        try {
+          const res = await axios.get("http://localhost:8899/api/users/me", {
+            headers: {
+              Authorization: `Bearer ${get().token}`,
+            },
+          });
+          set({ currentUser: res.data.user});
+        } catch (err) {
+          console.error("❌ Failed to fetch current user", err);
+          get().logout()
+        }
+      },
 
-        return { success: true, role: payload.role };
-      } catch (error) {
-        return {
-          success: false,
-          message: error.response?.data?.message || "Login failed",
-        };
-      }
-    },
 
-    logout: () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      set({ isLoggedIn: false, user: null, token: null });
-    },
-  };
-});
+      logout: () => {
+        set({ isLoggedIn: false, user: null, token: null, isAdmin: false });
+        // setTimeout(()=> {
+        //   console.log('user after: ', userAuthStore.getState().user)
+        // },500);
+
+      },
+    }
+    ),
+    {
+      name: "auth-store"
+    }
+  ));
 
 export default useAuthStore;
 
 
-
-
-// import { create } from 'zustand';
-// import { persist } from 'zustand/middleware';
-// import { actionLogin } from '../api/auth.api';
-
-// // 1.Create Store
-// const authStore = (set)=>({
-//   token:null,
-//   user:[],
-  
-//   actionLoginWithZustand:async(value)=>{
-//     try{
-//       const res = await actionLogin(value)
-//       const { payload,token } = res.data
-//       // console.log(payload)
-//       // console.log(token)
-//       set({token: token, user:payload});
-//       return { success:true, role: payload.role };
-//     }catch(error){
-//       // console.log(error)
-//       return { success:false, message: error.response?.data?.message }
-//     }
-//   },
-// });
-
-// // 2.UseStore
-// const useAuthStore = create(persist(authStore,{name:'auth-store'}))
-
-// export default useAuthStore;
 
